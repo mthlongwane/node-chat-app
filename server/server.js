@@ -32,17 +32,34 @@ io.on('connection', (socket) =>{
     socket.on('disconnect', ()=>{
        console.log("Client disconnected.") 
     })
-    //used to send new message
-    socket.emit('newMessage',{
-        from: "Server",
-        text: "aweeza",
+
+    //used to send welcome message
+    socket.emit('newMessage',{ //emits to socket connected only
+        from: "Admin",
+        text: "Welcome to the chatApp",
         createdAt: new Date().getTime().toString()
     })
+
+    socket.broadcast.emit('newMessage',{ //emits to all sockets excluding self
+        from: "Admin",
+        text: "New user has joined the chat",
+        createdAt: new Date().getTime().toString()
+    })
+
+
     // listens to users messages 
     socket.on('createMessage',(newMessage) => {
         //console.log('New message: ',newMessage)
-        console.log(newMessage);
-        
+        io.emit('newMessage',{ // emits message to all sockets including self
+            from: newMessage.from,
+            text: newMessage.text,
+            createdAt: new Date().getTime().toString()
+        }); /*
+        socket.broadcast.emit('newMessage',{ // emits message to all sockets excluding self
+            from: newMessage.from,
+            text: newMessage.text,
+            createdAt: new Date().getTime().toString()
+        }); */
     })
     
 })

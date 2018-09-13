@@ -6,10 +6,12 @@ socket.on('connect', function(){
         to: 'thando@gmail.com',
         text: 'Bhudda ugrend?'
     })*/
+    /*
+    //emits message to server 
     socket.emit('createMessage',{
         from: "newUser",
         text: "hey I've just joined!"
-    })
+    }) */
 })
 
 socket.on('disconnect', function(){
