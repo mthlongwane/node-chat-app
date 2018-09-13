@@ -52,7 +52,7 @@ io.on('connection', (socket) =>{
     socket.broadcast.emit('newMessage', generateMessage( "Admin","New user has joined the chat"))
 
     // listens to users messages 
-    socket.on('createMessage',(newMessage) => {
+    socket.on('createMessage',(newMessage, callback) => {
         //console.log('New message: ',newMessage)
         io.emit('newMessage', generateMessage(newMessage.from, newMessage.text)) // emits message to all sockets including self    
         /*
@@ -61,6 +61,7 @@ io.on('connection', (socket) =>{
             text: newMessage.text,
             createdAt: new Date().getTime().toString()
         }); */
+        callback({text: "Broacast was recieved and passed on"}); //acknowledgement that data recieved via a socket callback response
     })
     
 })
