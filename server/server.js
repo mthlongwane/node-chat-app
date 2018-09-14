@@ -7,7 +7,7 @@ const socketIO = require ('socket.io');
 
 const publicPath = path.join(__dirname, '../public') ; // this is better than ../../ because it makes issues.
 const port = process.env.PORT || 3000 ;
-const {generateMessage} = require('./utils/message')
+const {generateMessage, generateLocationMessage} = require('./utils/message')
 
 
 var app = express()
@@ -62,6 +62,11 @@ io.on('connection', (socket) =>{
             createdAt: new Date().getTime().toString()
         }); */
         callback({text: "Broacast was recieved and passed on"}); //acknowledgement that data recieved via a socket callback response
+    })
+
+    socket.on('createLocationMessage', (coords) => {
+        //io.emit('newMessage', generateMessage('Admin', `${coords.latitude}, ${coords.longitude}`)) ;
+        io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude));
     })
     
 })
