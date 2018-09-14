@@ -62,7 +62,8 @@ io.on('connection', (socket) =>{
             text: newMessage.text,
             createdAt: new Date().getTime().toString()
         }); */
-        callback({text: "Broacast was recieved and passed on"}); //acknowledgement that data recieved via a socket callback response
+        //callback({text: "Broacast was recieved and passed on"}); //acknowledgement that data recieved via a socket callback response
+        callback();
     })
 
     socket.on('createLocationMessage', (coords) => {
