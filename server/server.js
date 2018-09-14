@@ -34,6 +34,7 @@ io.on('connection', (socket) =>{
     // listen for users disconnections
     socket.on('disconnect', ()=>{
        console.log("Client disconnected.") 
+       io.emit('newMessage',  generateMessage('user',"has left the chat."));
     })
 
     //used to send welcome message 
