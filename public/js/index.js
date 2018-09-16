@@ -1,4 +1,23 @@
 var socket = io();  
+ //calculates if messages have hit bottom of screen and whether scrolling is required.
+function scrollToBottom(){
+    //selectors 
+    var messages = jQuery('#messages');
+    var newMessage = messages.children('li:last-child')
+    //heights
+    var clientHeight = messages.prop('clientHeight');
+    var scrollTop = messages.prop('scrollTop');
+    var scrollHeight = messages.prop('scrollHeight');
+
+    var newMessageHeight = newMessage.innerHeight();
+    var lastMessageHeight = newMessage.prev().innerHeight();
+
+    // the scroll accounts for new messages and when you are currently not on at the bottom, it will not throw you to the bottom instantly
+    if(clientHeight+scrollTop+newMessageHeight+lastMessageHeight >= scrollHeight){
+        messages.scrollTop(scrollHeight); 
+    }
+
+}
 
 socket.on('connect', function(){
     console.log("client socket connected")
@@ -32,7 +51,7 @@ socket.on('newMessage', function(message){
         createdAt: formattedTime
     }); 
     jQuery('#messages').append(html);
-
+    scrollToBottom();
     /* from the initial means to setup message injecting
    
     var li = jQuery('<li></li>');
@@ -50,6 +69,7 @@ socket.on('newLocationMessage', function(message){
         createdAt: formattedTime
     }); 
     jQuery('#messages').append(html);
+    scrollToBottom();
     /*
     var li = jQuery('<li></li>');
     var a = jQuery('<a target ="_blank">My current Location</a>');
