@@ -81,7 +81,10 @@ io.on('connection', (socket) =>{
     // listens to users messages 
     socket.on('createMessage',(newMessage, callback) => {
         //console.log('New message: ',newMessage)
-        io.emit('newMessage', generateMessage(newMessage.from, newMessage.text)) // emits message to all sockets including self    
+        var user = users.getUser(socket.id);
+        if (user && isRealString(newMessage.text)){
+            io.to(user.room).emit('newMessage', generateMessage(user.name, newMessage.text)) // emits message to all sockets including self    
+        }
         /*
         socket.broadcast.emit('newMessage',{ // emits message to all sockets excluding self
             from: newMessage.from,

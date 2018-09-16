@@ -112,7 +112,6 @@ jQuery('#message-form').on('submit', function(e){
     e.preventDefault();
     var messageTextbox= jQuery('[name=message]')
     socket.emit('createMessage', {
-        from: 'user',
         text: messageTextbox.val()
     }, function(response){ // this is waiting for the socket callback response
         //console.log("Server response:", response)
