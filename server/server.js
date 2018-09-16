@@ -8,7 +8,7 @@ const socketIO = require ('socket.io');
 const publicPath = path.join(__dirname, '../public') ; // this is better than ../../ because it makes issues.
 const port = process.env.PORT || 3000 ;
 const {generateMessage, generateLocationMessage} = require('./utils/message')
-
+const {isRealString} = require('./utils/validation')
 
 var app = express()
 var server = http.createServer(app);
@@ -16,10 +16,11 @@ var server = http.createServer(app);
 var io = socketIO(server); //add to server
 
 
+
 io.on('connection', (socket) =>{
     // This is an event listener 
     // this defines each socket connection as the callback function returns each individual socket connection.
-    console.log("Socket connected.")
+    //console.log("Socket connected.")
     /*
     socket.emit('newEmail',{
         from: 'thando@gmail.com',
@@ -30,6 +31,20 @@ io.on('connection', (socket) =>{
     socket.on('createEmail',(newEmail) => {
         console.log('createEmail',newEmail)
     })*/
+
+    socket.on('join', (params, callback) =>{
+        if(!isRealString(params.name) || !isRealString(params.room) ){
+            callback('Name and room are required.')
+        }
+        socket.join(params.room);
+
+        //io.emit --> io.to('zaio').emit
+        //socket.broadcast.emit --> socket.broadcast.to('zaio').emit
+        //socket.emit
+        socket.emit('newMessage',generateMessage( "Admin","Welcome to the chatApp")); // more modular way of generating messages
+        socket.broadcast.to(params.room).emit('newMessage', generateMessage( "Admin",`${params.name} has joined the chat`))
+        callback();
+    });
 
     // listen for users disconnections
     socket.on('disconnect', ()=>{
@@ -43,14 +58,13 @@ io.on('connection', (socket) =>{
         text: "Welcome to the chatApp",
         createdAt: new Date().getTime()
     }) */
-    socket.emit('newMessage',generateMessage( "Admin","Welcome to the chatApp")); // more modular way of generating messages
+    
     /*
     socket.broadcast.emit('newMessage',{ //emits to all sockets excluding self
         from: "Admin",
         text: "New user has joined the chat",
         createdAt: new Date().getTime()
     }) */
-    socket.broadcast.emit('newMessage', generateMessage( "Admin","New user has joined the chat"))
 
     // listens to users messages 
     socket.on('createMessage',(newMessage, callback) => {
@@ -71,6 +85,7 @@ io.on('connection', (socket) =>{
         io.emit('newLocationMessage', generateLocationMessage('Admin', coords.latitude, coords.longitude));
     })
     
+
 })
 
 //middleware

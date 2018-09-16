@@ -20,7 +20,16 @@ function scrollToBottom(){
 }
 
 socket.on('connect', function(){
-    console.log("client socket connected")
+    //console.log("client socket connected")
+    var params = jQuery.deparam(window.location.search); //the window class is for the browser location.search takes the query part of the url
+    socket.emit('join', params, function(err){
+        if (err){
+            alert(err);
+            window.location.href ='/';
+        }else{
+            console.log("no error"); 
+        }
+    });
     /*socket.emit('createEmail', {
         from: "sizwe@gmail.com",
         to: 'thando@gmail.com',
