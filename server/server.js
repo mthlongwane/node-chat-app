@@ -9,12 +9,13 @@ const publicPath = path.join(__dirname, '../public') ; // this is better than ..
 const port = process.env.PORT || 3000 ;
 const {generateMessage, generateLocationMessage} = require('./utils/message')
 const {isRealString} = require('./utils/validation')
+const {Users} = require('./utils/users');
 
 var app = express()
 var server = http.createServer(app);
 
 var io = socketIO(server); //add to server
-
+var users = new Users();
 
 
 io.on('connection', (socket) =>{
@@ -34,9 +35,14 @@ io.on('connection', (socket) =>{
 
     socket.on('join', (params, callback) =>{
         if(!isRealString(params.name) || !isRealString(params.room) ){
-            callback('Name and room are required.')
+            return callback('Name and room are required.') //ensures that if data not valid, code below will not run
         }
-        socket.join(params.room);
+        socket.join(params.room); //socket connection for specific rooms
+        users.removeUser(socket.id); // remove user from other rooms before putting them into a new room
+        //add user to list after joining chatroom
+        users.addUser(socket.id, params.name, params.room);
+
+        io.to(params.room).emit('updateUserList',users.getUserList(params.room));
 
         //io.emit --> io.to('zaio').emit
         //socket.broadcast.emit --> socket.broadcast.to('zaio').emit
@@ -48,8 +54,14 @@ io.on('connection', (socket) =>{
 
     // listen for users disconnections
     socket.on('disconnect', ()=>{
-       console.log("Client disconnected.") 
-       io.emit('newMessage',  generateMessage('user',"has left the chat."));
+       var user = users.removeUser(socket.id); // remove user
+       //console.log("Client disconnected.") 
+       
+       if(user){
+           io.to(user.room).emit('updateUserList', users.getUserList(user.room)); //will remove user from room list
+           io.to(user.room).emit('newMessage', generateMessage(`Admin`,` ${user.name} has left the chat`)); //emit message to everyone
+       }
+       //io.emit('newMessage',  generateMessage('user',"has left the chat."));
     })
 
     //used to send welcome message 
